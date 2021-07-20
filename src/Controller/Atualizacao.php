@@ -5,10 +5,13 @@ namespace Alura\Cursos\Controller;
 
 
 use Alura\Cursos\Entity\Curso;
+use Alura\Cursos\Helper\RenderizadorDeHtmlTrait;
 use Alura\Cursos\Infra\EntityManagerCreator;
 
-class Atualizacao extends ControllerComHtml implements InterfaceControladorRequisicao
+class Atualizacao implements InterfaceControladorRequisicao
 {
+
+    use RenderizadorDeHtmlTrait;
 
     /**
      * @var \Doctrine\ORM\EntityManagerInterface

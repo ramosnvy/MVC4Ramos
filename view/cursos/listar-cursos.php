@@ -1,4 +1,5 @@
 <?php include __DIR__ . '/../comeco-html.php'?>
+    <div>
         <a href="/novo-curso" class="btn btn-primary mb-2">
             Novo Curso
         </a>

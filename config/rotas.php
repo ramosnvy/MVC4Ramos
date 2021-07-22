@@ -1,13 +1,13 @@
 <?php
 
 use Alura\Cursos\Controller\{Atualizacao,
-    Exclusao,
     FormularioInsercao,
     FormularioLogin,
     ListaCursos,
     Logout,
     Persistencia,
-    RealizaLogin};
+    RealizaLogin,
+    Exclusao};
 
 return [
     '/listar-cursos' => ListaCursos::class,

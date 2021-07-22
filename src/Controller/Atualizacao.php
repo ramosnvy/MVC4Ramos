@@ -5,50 +5,52 @@ namespace Alura\Cursos\Controller;
 
 
 use Alura\Cursos\Entity\Curso;
-use Alura\Cursos\Helper\RenderizadorDeHtmlTrait;
-use Alura\Cursos\Infra\EntityManagerCreator;
+use Alura\Cursos\Helper\FlashMessageTrait;
+use Alura\Cursos\Helper\RenderizadorComHtml;
+use Doctrine\ORM\EntityManagerInterface;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class Atualizacao implements InterfaceControladorRequisicao
+class Atualizacao implements RequestHandlerInterface
 {
 
-    use RenderizadorDeHtmlTrait;
+    use RenderizadorComHtml, FlashMessageTrait;
 
-    /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $entityManager;
-    private $repositorioCursos;
+    private \Doctrine\Persistence\ObjectRepository $repositorioCursos;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $entityManager= (new EntityManagerCreator())->getEntityManager();
-        $this->repositorioCursos= $entityManager->getRepository(Curso::class);
+        $this->repositorioCursos = $entityManager->getRepository(Curso::class);
     }
 
-    public function processaRequisicao(): void
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $id = filter_input(
-            INPUT_GET,
-            'id',
+
+        $redirecionaListarCursos = new Response(302,
+            ['Location' => '/listar-cursos']
+        );
+
+        $id = filter_var(
+            $request->getQueryParams()['id'],
             FILTER_VALIDATE_INT
         );
 
-        if (is_null($id) || $id === false){
-            header('Location: /listar-cursos');
-            return;
+        if(is_null($id) || $id === false){
+            $this->defineMensagem('danger', 'ID de curso inválido');
+            return $redirecionaListarCursos;
         }
 
+        /* @var Curso $curso */
         $curso = $this->repositorioCursos->find($id);
 
-
-       echo $this->renderizaHtml('cursos/formulario.php', [
+        $html = $this->renderizaHtml('cursos/formulario.php', [
             'curso' => $curso,
-            'titulo' => 'Altera Curso' . $curso->getDescricao(),
+            'titulo' => ' Altera Curso ' . $curso->getDescricao()
         ]);
 
-
-
-
+        return new Response(302, [], $html);
 
     }
 }

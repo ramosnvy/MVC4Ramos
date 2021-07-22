@@ -1,35 +1,36 @@
 <?php
 
+
 namespace Alura\Cursos\Controller;
 
 
 use Alura\Cursos\Entity\Curso;
-use Alura\Cursos\Helper\RenderizadorDeHtmlTrait;
-use Alura\Cursos\Infra\EntityManagerCreator;
+use Alura\Cursos\Helper\RenderizadorComHtml;
+use Doctrine\ORM\EntityManagerInterface;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class ListaCursos  implements InterfaceControladorRequisicao
+class ListaCursos implements RequestHandlerInterface
 {
+    use RenderizadorComHtml;
 
-    use RenderizadorDeHtmlTrait;
-
-    private $repositorioDeCursos;
-
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $entityManager = (new EntityManagerCreator())
-            ->getEntityManager();
-        $this->repositorioDeCursos = $entityManager->getRepository(Curso::class);
+        $this->repositorioCursos = $entityManager->getRepository(Curso::class);
     }
 
-    public function processaRequisicao():void
-    {
 
-        $dados = [
-            'cursos' => $this->repositorioDeCursos->findAll(),
-            'titulo' => "Lista de Cursos"
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $dados = ['titulo' => 'Lista de Cursos',
+            'cursos' => $this->repositorioCursos->findAll(),
         ];
 
-       echo $this->renderizaHtml('cursos/listar-cursos.php' , $dados );
+    $html = $this->renderizaHtml('cursos/listar-cursos.php', $dados);
+
+    return new Response(302, [], $html);
+
     }
-        
 }
